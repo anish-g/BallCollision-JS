@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ball Collision</title>
+</head>
+<body>
+	<div id="wrapper" style="width: 1224px; height: 620px; border: 5px solid black; position: relative; margin: 0 auto; display: block;"></div>
+
+	<script type="text/javascript">
+
+		function Ball( x, y, width, parentElem, color) {
+			this.x = x;
+			this.y = y;
+			this.width = this.height = width;
+			this.element = null;
+			this.color = color;
+			this.speed = getRandomInt(1,6);
+			this.dx = getRandomInt(-1,2) * this.speed;
+			this.dy = getRandomInt(-1,2) * this.speed;
+			this.parentElement = parentElem;
+
+
+			this.init = function() {
+				this.element = document.createElement('div');
+				this.element.className = 'ball';
+				this.element.style.position = 'absolute';
+
+				this.parentElement.appendChild(this.element);
+
+				return this;
+			}
+
+			this.move = function() {
+				this.x += this.dx;
+				this.y += this.dy;
+			}
+
+			this.draw = function() {
+				this.element.style.width = this.element.style.height = this.width + 'px';
+				this.element.style.borderRadius = '50%';
+				this.element.style.background = this.color;
+				this.element.style.top = this.y + 'px';
+				this.element.style.left = this.x + 'px';
+			}
+
+			this.setPosition = function(x, y) {
+				this.x = x;
+				this.y = y;
+			}
+		}
+
+		var GAME_FRAME_RATE = 24;
+
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min)) + min;
+		}
+
+		function getRandomColor() {
+			var red = getRandomInt(0,255);
+			var green = getRandomInt(0,255);
+			var blue = getRandomInt(0,255);
+
+			 return 'rgb(' + red + ',' + green + ',' + blue + ')';
+ 		}
+
+ 		function borderCollision(ball) {
+ 			if (ball.x >= 1224 - ball.width) {
+ 				ball.x = 1224 - ball.width;
+ 				ball.dx *=  -1;	
+ 			} else if (ball.x <= 0) {
+ 				ball.x = 0;
+ 				ball.dx *=  -1;
+ 			}
+ 				 				
+ 			if (ball.y >= 620 - ball.width) {
+ 				ball.y = 620 - ball.width;
+ 				ball.dy *=  -1;
+ 			} else if (ball.y <= 0){
+ 				ball.y = 0;
+ 				ball.dy *=  -1;
+ 			}
+ 		}
+
+ 		function isOverlap(firstBall, secondBall) {
+     		// console.log('Overlap!!!!');
+
+    		if (firstBall.x + firstBall.width > secondBall.x && firstBall.x < secondBall.x + secondBall.width && firstBall.y + firstBall.width  > secondBall.y && firstBall.y < secondBall.y + secondBall.width) {
+    				return true;
+    			} else {
+    				return false;
+    			}
+ 		}
+
+ 		function isCollision(ball1, ball2) {
+ 			var ball1Radius = ball1.width/2;
+ 			var ball2Radius = ball2.width/2;
+
+ 			var ball1CenterX = ball1.x + ball1Radius;
+ 			var ball1CenterY = ball1.y + ball1Radius;
+
+ 			var ball2CenterX = ball2.x + ball2Radius;
+ 			var ball2CenterY = ball2.y + ball2Radius;
+
+    		var dx = ball1CenterX - ball2CenterX;
+    		var dy = ball1CenterY - ball2CenterY;
+
+    		var distance = Math.sqrt(dx*dx+dy*dy);
+
+    		return distance - ball1Radius - ball2Radius  <= 0.0000001;
+ 		}
+
+
+ 		function ballCollision(ball1, ball2) {
+ 			if (isCollision(ball1, ball2)) {
+ 				let tempX, tempY;
+ 				tempX = ball1.dx;
+ 				tempY = ball1.dy;
+ 				ball1.dx = ball2.dx;
+ 				ball1.dy = ball2.dy;
+ 				ball2.dx = tempX;
+ 				ball2.dy = tempY; 
+
+ 				// fixOverlap(ball1, ball2);
+ 			}
+ 		}
+ 	
+
+		function GameAnimation(parentElement) {
+			var ballsArr = [];
+			var ballCount = 100;
+
+			this.parentElement = parentElement;
+
+			this.init = function() {
+				// console.log('init', this.parentElement);
+
+				for(var i = 0; i < ballCount; i++) {
+
+					var width = getRandomInt(6, 31);
+					// width = getRandomInt(100, 200);
+					// console.log('Width: ' + width);
+					var  positionX = getRandomInt(0, 1224-width);
+					var positionY = getRandomInt(0, 620-width);
+
+					var newBall = new Ball(positionX, positionY , width, this.parentElement, getRandomColor());
+
+					if (ballsArr.length != 0) {
+						for(var x = 0; x < ballsArr.length; x++) {
+							var existingBall = ballsArr[x];
+							if(isOverlap(newBall, existingBall)) {
+								width = getRandomInt(6, 31);
+								// width = getRandomInt(100, 200);
+								// console.log('Width: ' + width);
+								positionX = getRandomInt(0, 1224-width);
+								positionY = getRandomInt(0, 620-width);
+
+								newBall = new Ball(positionX, positionY , width, this.parentElement, getRandomColor());
+								x=-1;
+							}
+						}
+						newBall.init();
+						newBall.setPosition(positionX, positionY);
+						newBall.draw();
+						ballsArr.push(newBall);
+					} else {
+						newBall.init();
+						newBall.setPosition(positionX, positionY);
+						newBall.draw();
+						ballsArr.push(newBall);
+					}
+				}
+
+				// this.parentElement.addEventListener('click', function() {
+				// 	if
+				// })
+				setInterval(this.start.bind(this), GAME_FRAME_RATE);
+			}
+
+			this.start = function() {
+				ballsArr.forEach(function(ball, index) {
+					ball.draw();
+					ball.move();
+					borderCollision(ball);
+					ballsArr.forEach( function(ballAnother, indexAnother) {
+						if (index === indexAnother) {
+							return;
+						}
+						ballCollision(ball, ballAnother);
+					});
+
+				})
+			}
+		}
+
+		new GameAnimation(wrapper).init();
+		// console.log('Total ballsArr: '+wrapper.childElementCount);
+	</script>
+</body>
+</html>
