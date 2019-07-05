@@ -93,6 +93,32 @@
     			}
  		}
 
+ 		function fixOverlap(firstBall, secondBall) {
+ 			var dist, notOverlapped, overlapped;
+
+ 			var dx = (firstBall.x + firstBall.width/2) - (secondBall.x + secondBall.width/2);
+ 			var dy = (firstBall.y + firstBall.width/2) - (secondBall.y + secondBall.width/2);
+ 			dist = Math.sqrt(dx*dx+dy*dy);
+ 			notOverlapped = dist - secondBall.width/2;
+ 			overlapped = firstBall.width/2 - notOverlapped;
+
+ 			if (firstBall.x < secondBall.x) {
+ 				firstBall.x = firstBall.x - overlapped/2;
+ 				secondBall.x = secondBall.x + overlapped/2;
+ 			} else {
+ 				firstBall.x = firstBall.x + overlapped/2;
+ 				secondBall.x = secondBall.x - overlapped/2;
+ 			}
+
+ 			if (firstBall.y < secondBall.y) {
+ 				firstBall.y = firstBall.y - overlapped/2;
+ 				secondBall.y = secondBall.y + overlapped/2;
+ 			} else {
+ 				firstBall.y = firstBall.y + overlapped/2;
+ 				secondBall.y = secondBall.y - overlapped/2;
+ 			}
+ 		}
+
  		function isCollision(ball1, ball2) {
  			var ball1Radius = ball1.width/2;
  			var ball2Radius = ball2.width/2;
@@ -107,6 +133,7 @@
     		var dy = ball1CenterY - ball2CenterY;
 
     		var distance = Math.sqrt(dx*dx+dy*dy);
+    		// console.log('Distance: '+distance);
 
     		return distance - ball1Radius - ball2Radius  <= 0.0000001;
  		}
@@ -114,7 +141,7 @@
 
  		function ballCollision(ball1, ball2) {
  			if (isCollision(ball1, ball2)) {
- 				let tempX, tempY;
+ 				var tempX, tempY;
  				tempX = ball1.dx;
  				tempY = ball1.dy;
  				ball1.dx = ball2.dx;
@@ -122,14 +149,14 @@
  				ball2.dx = tempX;
  				ball2.dy = tempY; 
 
- 				// fixOverlap(ball1, ball2);
+ 				fixOverlap(ball1, ball2);
  			}
  		}
  	
 
 		function GameAnimation(parentElement) {
 			var ballsArr = [];
-			var ballCount = 100;
+			var ballCount = 500;
 
 			this.parentElement = parentElement;
 
@@ -138,7 +165,7 @@
 
 				for(var i = 0; i < ballCount; i++) {
 
-					var width = getRandomInt(6, 31);
+					var width = getRandomInt(6, 51);
 					// width = getRandomInt(100, 200);
 					// console.log('Width: ' + width);
 					var  positionX = getRandomInt(0, 1224-width);
@@ -150,7 +177,7 @@
 						for(var x = 0; x < ballsArr.length; x++) {
 							var existingBall = ballsArr[x];
 							if(isOverlap(newBall, existingBall)) {
-								width = getRandomInt(6, 31);
+								width = getRandomInt(6, 51);
 								// width = getRandomInt(100, 200);
 								// console.log('Width: ' + width);
 								positionX = getRandomInt(0, 1224-width);
@@ -172,9 +199,22 @@
 					}
 				}
 
-				// this.parentElement.addEventListener('click', function() {
-				// 	if
-				// })
+				this.parentElement.addEventListener('click', function(e) {
+					if (e.target.className === 'ball') {
+						parentElement.removeChild(e.target);
+						var index = -1;
+						for ( var k = 0; k < ballsArr.length; k++) {
+							if (ballsArr[k].element === e.target) {
+								index = k;
+							}
+						}
+						if (index > -1) {
+							ballsArr.splice(index, 1);
+						}
+						console.log(ballsArr);
+					}
+				})
+
 				setInterval(this.start.bind(this), GAME_FRAME_RATE);
 			}
 
