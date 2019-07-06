@@ -69,17 +69,21 @@
  			if (ball.x >= 1224 - ball.width) {
  				ball.x = 1224 - ball.width;
  				ball.dx *=  -1;	
+ 				ball.color = getRandomColor();
  			} else if (ball.x <= 0) {
  				ball.x = 0;
  				ball.dx *=  -1;
+ 				ball.color = getRandomColor();
  			}
  				 				
  			if (ball.y >= 620 - ball.width) {
  				ball.y = 620 - ball.width;
  				ball.dy *=  -1;
+ 				ball.color = getRandomColor();
  			} else if (ball.y <= 0){
  				ball.y = 0;
  				ball.dy *=  -1;
+ 				ball.color = getRandomColor();
  			}
  		}
 
@@ -149,6 +153,9 @@
  				ball2.dx = tempX;
  				ball2.dy = tempY; 
 
+ 				ball1.color = getRandomColor();
+ 				ball2.color = getRandomColor();
+
  				fixOverlap(ball1, ball2);
  			}
  		}
@@ -156,7 +163,7 @@
 
 		function GameAnimation(parentElement) {
 			var ballsArr = [];
-			var ballCount = 500;
+			var ballCount = 100;
 
 			this.parentElement = parentElement;
 
